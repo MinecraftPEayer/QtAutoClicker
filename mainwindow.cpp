@@ -31,6 +31,10 @@ MainWindow::MainWindow(QWidget* parent)
   QDir().mkpath(configDir);
   QString configPath = configDir + "/autoclicker_config.json";
   QFile configFile(configPath);
+
+  hotkey_linux_code = 68;
+  hotkeyName = "F10";
+
   if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QByteArray configData = configFile.readAll();
     configFile.close();
@@ -42,9 +46,8 @@ MainWindow::MainWindow(QWidget* parent)
           configObj["hotkey_text"].isString()) {
         hotkey_linux_code = configObj["hotkey"].toInt();
         hotkeyName = configObj["hotkey_text"].toString();
-
-        ui->hotkeyEdit->setText(hotkeyName);
       }
+      ui->hotkeyEdit->setText(hotkeyName);
     } else {
       qWarning() << "Failed to parse config file:" << parseError.errorString();
     }
