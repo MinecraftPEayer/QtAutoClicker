@@ -83,9 +83,10 @@ MainWindow::MainWindow(QWidget* parent)
 MainWindow::~MainWindow() { delete ui; }
 
 void MainWindow::closeEvent(QCloseEvent* event) {
-  QString appDir = QApplication::applicationDirPath();
-  QDir dir(appDir);
-  QString configFilePath = dir.filePath("autoclicker_config.json");
+  QString configDir =
+      QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+  QDir().mkpath(configDir);
+  QString configFilePath = configDir + "/autoclicker_config.json";
 
   QJsonObject json;
   json["hotkey"] = hotkey_linux_code;
