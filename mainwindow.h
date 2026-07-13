@@ -23,8 +23,6 @@ class MainWindow : public QMainWindow {
   void closeEvent(QCloseEvent* event) override;
 
  private slots:
-  void on_button_question_clicked();
-
   void on_StartButton_clicked();
 
   void on_StopButton_clicked();
@@ -39,7 +37,7 @@ class MainWindow : public QMainWindow {
 
   void on_ButtonComboBox_currentIndexChanged(int index);
 
-  private:
+ private:
   Ui::MainWindow* ui;
   QLocalSocket* ipcSocket;
   QTimer* reconnectTimer;

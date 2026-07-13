@@ -25,13 +25,13 @@ void Backend::init() {
   uinput_fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
 
   if (uinput_fd < 0) {
-    std::cerr << "[Fatal] Failed to open /dev/uinput\n";
+    std::cerr << "[Backend Fatal] Failed to open /dev/uinput\n";
     app.exit(3);
     return;
   }
 
   if (ioctl(uinput_fd, UI_SET_EVBIT, EV_KEY) < 0) {
-    std::cerr << "[Fatal] Failed to set EV_KEY\n";
+    std::cerr << "[Backend Fatal] Failed to set EV_KEY\n";
     close(uinput_fd);
     uinput_fd = -1;
     app.exit(3);
@@ -41,7 +41,7 @@ void Backend::init() {
   if (ioctl(uinput_fd, UI_SET_KEYBIT, BTN_LEFT) < 0 ||
       ioctl(uinput_fd, UI_SET_KEYBIT, BTN_RIGHT) < 0 ||
       ioctl(uinput_fd, UI_SET_KEYBIT, BTN_MIDDLE) < 0) {
-    std::cerr << "[Fatal] Failed to set one or more mouse buttons\n";
+    std::cerr << "[Backend Fatal] Failed to set one or more mouse buttons\n";
     close(uinput_fd);
     uinput_fd = -1;
     app.exit(3);
@@ -56,7 +56,7 @@ void Backend::init() {
   uidev.id.product = 0x5678;
 
   if (write(uinput_fd, &uidev, sizeof(uidev)) < 0) {
-    std::cerr << "[Fatal] Failed to write uinput_user_dev\n";
+    std::cerr << "[Backend Fatal] Failed to write uinput_user_dev\n";
     close(uinput_fd);
     uinput_fd = -1;
     app.exit(3);
@@ -64,14 +64,14 @@ void Backend::init() {
   }
 
   if (ioctl(uinput_fd, UI_DEV_CREATE) < 0) {
-    std::cerr << "[Fatal] Failed to create uinput device\n";
+    std::cerr << "[Backend Fatal] Failed to create uinput device\n";
     close(uinput_fd);
     uinput_fd = -1;
     app.exit(3);
     return;
   }
 
-  std::cout << "[Info] Successfully initialized uinput device\n";
+  std::cout << "[Backend Info] Successfully initialized uinput device\n";
 
   clickTimer = new QTimer(this);
   clickTimer->setTimerType(Qt::PreciseTimer);
@@ -90,7 +90,6 @@ void Backend::init() {
   connect(
       evdevWorker, &EvdevWorker::hotkeyTriggered, this,
       [this]() {
-        std::cout << "test" << std::endl;
         if (clicking) {
           QMetaObject::invokeMethod(clickTimer, "stop", Qt::QueuedConnection);
           clicking = false;
@@ -102,7 +101,7 @@ void Backend::init() {
       },
       Qt::QueuedConnection);
 
-  std::cout << "[Info] Evdev worker thread started\n";
+  std::cout << "[Backend Info] Evdev worker thread started\n";
 }
 
 int Backend::exec() {
@@ -118,7 +117,7 @@ void Backend::setupSocketServer() {
   QLocalServer::removeServer(serverName);
 
   if (!server->listen(serverName)) {
-    std::cerr << "[Fatal] Failed to start socket server: "
+    std::cerr << "[Backend Fatal] Failed to start socket server: "
               << server->errorString().toStdString() << "\n";
     app.exit(4);
     return;

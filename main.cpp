@@ -28,8 +28,6 @@ int runBackend(int argc, char* argv[]) {
   clearenv();
   setenv("PATH", "/bin:/usr/bin:/sbin:/usr/sbin", 1);
 
-  std::cout << "test\n";
-
   QCoreApplication a(argc, argv);
   Backend backend(a);
   return backend.exec();

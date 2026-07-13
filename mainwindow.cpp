@@ -100,19 +100,6 @@ void MainWindow::closeEvent(QCloseEvent* event) {
   event->accept();
 }
 
-void MainWindow::on_button_question_clicked() {
-  QMessageBox msgBox;
-  msgBox.setWindowTitle("Info");
-  msgBox.setIcon(QMessageBox::Information);
-  msgBox.setText(
-      "If interval is set to 100 milliseconds and Random\n"
-      "offset is set to 40, then the actual value of\n"
-      "interval is a random number in the range of 60 to\n"
-      "140.");
-  msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
-  msgBox.exec();
-}
-
 void MainWindow::setUiEnabled(bool enabled) {
   ui->StartButton->setEnabled(enabled);
   ui->StopButton->setEnabled(enabled);

@@ -50,7 +50,8 @@ void EvdevWorker::startPolling() {
     return;
   }
 
-  std::cout << "Monitoring input devices for hotkey..." << std::endl;
+  std::cout << "[Backend Info] Monitoring input devices for hotkey..."
+            << std::endl;
 
   std::vector<struct pollfd> pollFds(fds.size());
 
