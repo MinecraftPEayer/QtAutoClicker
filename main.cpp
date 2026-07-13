@@ -12,6 +12,11 @@
 #include "mainwindow.h"
 
 int runBackend(int argc, char* argv[]) {
+  QFileInfo logFile("/tmp/autoclicker_backend.log");
+  if (logFile.exists()) {
+    QFile::remove(logFile.absoluteFilePath());
+  }
+
   std::freopen("/tmp/autoclicker_backend.log", "a", stdout);
   std::freopen("/tmp/autoclicker_backend.log", "a", stderr);
 

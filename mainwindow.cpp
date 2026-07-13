@@ -8,6 +8,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
+#include <QStandardPaths>
 #include <QTimer>
 #include <iostream>
 
@@ -25,8 +26,10 @@ MainWindow::MainWindow(QWidget* parent)
   ipcSocket = new QLocalSocket(this);
   reconnectTimer = new QTimer(this);
 
-  QString configPath =
-      QApplication::applicationDirPath() + "/autoclicker_config.json";
+  QString configDir =
+      QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+  QDir().mkpath(configDir);
+  QString configPath = configDir + "/autoclicker_config.json";
   QFile configFile(configPath);
   if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QByteArray configData = configFile.readAll();
