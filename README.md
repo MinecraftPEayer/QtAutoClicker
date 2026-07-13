@@ -2,7 +2,7 @@
 
 A simple auto-clicker application built with Qt and uinput.
 
-# Install
+## Install
 
 Because AUR temporarily disabled new account registration, you can install the application by the following command:
 
