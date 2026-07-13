@@ -63,6 +63,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
 
+    a.setDesktopFileName("QtAutoClicker");
+
     MainWindow w;
     w.show();
     return a.exec();

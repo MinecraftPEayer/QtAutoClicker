@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=QtAutoClicker
+Comment=A simple auto-clicker application built with Qt and uinput.
+Exec=AutoClicker
+Icon=QtAutoClicker
+Terminal=false
+Categories=Utility;Development;

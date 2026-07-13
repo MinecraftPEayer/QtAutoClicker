@@ -75,6 +75,9 @@ install(TARGETS AutoClicker
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+install(FILES QtAutoClicker.desktop DESTINATION share/applications)
+install(FILES QtAutoClicker.png DESTINATION share/icons/hicolor/512x512/apps)
+
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(AutoClicker)
 endif()

@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QDir>
 #include <QFile>
+#include <QIcon>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
@@ -21,6 +22,9 @@ MainWindow::MainWindow(QWidget* parent)
       ipcSocket(nullptr),
       retryCount(0) {
   ui->setupUi(this);
+
+  setWindowIcon(QIcon(":/QtAutoClicker.png"));
+
   setUiEnabled(false);
 
   ipcSocket = new QLocalSocket(this);
