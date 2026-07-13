@@ -62,6 +62,7 @@ MainWindow::MainWindow(QWidget* parent)
         json["command"] = "SET_HOTKEY";
         QJsonObject data;
         data["hotkey"] = newKeycode;
+        data["hotkey_text"] = hotkeyText;
         json["data"] = data;
 
         QJsonDocument doc(json);
@@ -201,3 +202,50 @@ void MainWindow::sendCommand(const QString& command) {
 void MainWindow::on_StartButton_clicked() { sendCommand("START"); }
 
 void MainWindow::on_StopButton_clicked() { sendCommand("STOP"); }
+
+int MainWindow::calculateIntervalMs() {
+  int interval = ui->input_ms->text().toInt() +
+                 ui->input_secs->text().toInt() * 1000 +
+                 ui->input_mins->text().toInt() * 60 * 1000 +
+                 ui->input_hours->text().toInt() * 60 * 60 * 1000;
+  if (interval < 1) interval = 1;
+  return interval;
+}
+
+void MainWindow::updateConfig() {
+  int interval = calculateIntervalMs();
+  QString button = ui->ButtonComboBox->currentText().toUpper();
+
+  QJsonObject rootJson;
+  rootJson["command"] = "UPDATE_CONFIG";
+  QJsonObject dataJson;
+  dataJson["interval"] = interval;
+  dataJson["button"] = button;
+  rootJson["data"] = dataJson;
+  QJsonDocument doc(rootJson);
+  QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
+  jsonData.append('\n');
+
+  if (ipcSocket && ipcSocket->state() == QLocalSocket::ConnectedState) {
+    ipcSocket->write(jsonData);
+    ipcSocket->flush();
+  }
+}
+
+void MainWindow::on_input_hours_textEdited(const QString& arg1) {
+  updateConfig();
+}
+
+void MainWindow::on_input_mins_textEdited(const QString& arg1) {
+  updateConfig();
+}
+
+void MainWindow::on_input_secs_textEdited(const QString& arg1) {
+  updateConfig();
+}
+
+void MainWindow::on_input_ms_textEdited(const QString& arg1) { updateConfig(); }
+
+void MainWindow::on_ButtonComboBox_currentIndexChanged(int index) {
+  updateConfig();
+}

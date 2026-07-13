@@ -102,8 +102,6 @@ void Backend::init() {
       },
       Qt::QueuedConnection);
 
-  evdevThread->start();
-
   std::cout << "[Info] Evdev worker thread started\n";
 }
 
@@ -241,6 +239,50 @@ void Backend::handleNewConnection() {
         int hotkeyCode = dataObj["hotkey"].toInt();
 
         evdevWorker->setHotkey(QVector<int>() << hotkeyCode);
+      } else if (cmd == "UPDATE_CONFIG") {  // button, interval
+        if (!jsonObj.contains("data")) {
+          std::cout << "[Backend Warning] SET_HOTKEY command missing 'data' "
+                       "field.\n";
+          continue;
+        }
+
+        QJsonObject dataObj = jsonObj["data"].toObject();
+        if (dataObj.contains("button") && dataObj["button"].isString()) {
+          QString button = dataObj["button"].toString("LEFT").toUpper();
+          active_btn = MouseButton::Unknown;
+          if (button == "LEFT") {
+            active_btn = MouseButton::Left;
+          } else if (button == "RIGHT") {
+            active_btn = MouseButton::Right;
+          } else if (button == "MIDDLE") {
+            active_btn = MouseButton::Middle;
+          } else {
+            std::cout << "[Backend Warning] Invalid button value: "
+                      << button.toStdString() << "\n";
+            continue;
+          }
+
+          active_btn_linux_code = BTN_LEFT;
+          switch (active_btn) {
+            case MouseButton::Left:
+              active_btn_linux_code = BTN_LEFT;
+              break;
+            case MouseButton::Right:
+              active_btn_linux_code = BTN_RIGHT;
+              break;
+            case MouseButton::Middle:
+              active_btn_linux_code = BTN_MIDDLE;
+              break;
+            default:
+              std::cout << "[Backend Warning] Unknown button type.\n";
+              continue;
+          }
+        }
+
+        if (dataObj.contains("interval") && dataObj["interval"].isDouble()) {
+          interval_ms = dataObj["interval"].toInt();
+          if (interval_ms < 1) interval_ms = 1;
+        }
       } else {
         std::cout << "[Backend Warning] Unknown command: " << cmd.toStdString()
                   << "\n";

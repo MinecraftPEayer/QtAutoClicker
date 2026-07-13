@@ -85,3 +85,8 @@ CMakeLists.txt.user*
 .uic/
 /build*/
 /.qtcreator/
+
+CMakeFiles
+CMakeCache.txt
+cmake_install.cmake
+.qt

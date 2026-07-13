@@ -29,7 +29,17 @@ class MainWindow : public QMainWindow {
 
   void on_StopButton_clicked();
 
- private:
+  void on_input_hours_textEdited(const QString& arg1);
+
+  void on_input_mins_textEdited(const QString& arg1);
+
+  void on_input_secs_textEdited(const QString& arg1);
+
+  void on_input_ms_textEdited(const QString& arg1);
+
+  void on_ButtonComboBox_currentIndexChanged(int index);
+
+  private:
   Ui::MainWindow* ui;
   QLocalSocket* ipcSocket;
   QTimer* reconnectTimer;
@@ -42,5 +52,8 @@ class MainWindow : public QMainWindow {
   void tryConnectToSocket();
   void sendCommand(const QString& command);
   void setUiEnabled(bool enabled);
+
+  int calculateIntervalMs();
+  void updateConfig();
 };
 #endif  // MAINWINDOW_H
