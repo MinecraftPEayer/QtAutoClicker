@@ -11,3 +11,6 @@ git clone https://github.com/MinecraftPEayer/QtAutoClicker-AUR.git
 cd QtAutoClicker-AUR
 makepkg -si
 ```
+
+> [!WARNING]
+> **Privilege Requirement**: The application utilizes `polkit` to securely request root privileges at runtime, which is necessary to interact with `/dev/uinput` for hardware-level click emulation.
