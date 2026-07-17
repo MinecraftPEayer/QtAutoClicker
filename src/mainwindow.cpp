@@ -278,10 +278,14 @@ void MainWindow::toggleClickingState(bool clicking) {
   if (clicking) {
     ui->StartButton->setEnabled(false);
     ui->StopButton->setEnabled(true);
+    ui->StopButton->setFocus();
+
     MainWindow::setWindowTitle("Auto Clicker - Clicking");
   } else {
     ui->StartButton->setEnabled(true);
     ui->StopButton->setEnabled(false);
+    ui->StartButton->setFocus();
+
     MainWindow::setWindowTitle("Auto Clicker - Stopped");
   }
 }
