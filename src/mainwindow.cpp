@@ -30,34 +30,7 @@ MainWindow::MainWindow(QWidget* parent)
   ipcSocket = new QLocalSocket(this);
   reconnectTimer = new QTimer(this);
 
-  QString configDir =
-      QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-  QDir().mkpath(configDir);
-  QString configPath = configDir + "/autoclicker_config.json";
-  QFile configFile(configPath);
-
-  hotkey_linux_code = 68;
-  hotkeyName = "F10";
-
-  if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QByteArray configData = configFile.readAll();
-    configFile.close();
-    QJsonParseError parseError;
-    QJsonDocument configDoc = QJsonDocument::fromJson(configData, &parseError);
-    if (parseError.error == QJsonParseError::NoError && configDoc.isObject()) {
-      QJsonObject configObj = configDoc.object();
-      if (configObj.contains("hotkey") && configObj["hotkey"].isDouble() &&
-          configObj["hotkey_text"].isString()) {
-        hotkey_linux_code = configObj["hotkey"].toInt();
-        hotkeyName = configObj["hotkey_text"].toString();
-      }
-      ui->hotkeyEdit->setText(hotkeyName);
-    } else {
-      qWarning() << "Failed to parse config file:" << parseError.errorString();
-    }
-  } else {
-    qWarning() << "Failed to open config file:" << configFile.errorString();
-  }
+  loadConfig();
 
   connect(ipcSocket, &QLocalSocket::readyRead, this, [this]() {
     QByteArray data = ipcSocket->readAll();
@@ -106,7 +79,38 @@ MainWindow::MainWindow(QWidget* parent)
 
 MainWindow::~MainWindow() { delete ui; }
 
-void MainWindow::closeEvent(QCloseEvent* event) {
+void MainWindow::loadConfig() {
+  QString configDir =
+      QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+  QDir().mkpath(configDir);
+  QString configPath = configDir + "/autoclicker_config.json";
+  QFile configFile(configPath);
+
+  hotkey_linux_code = 68;
+  hotkeyName = "F10";
+
+  if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    QByteArray configData = configFile.readAll();
+    configFile.close();
+    QJsonParseError parseError;
+    QJsonDocument configDoc = QJsonDocument::fromJson(configData, &parseError);
+    if (parseError.error == QJsonParseError::NoError && configDoc.isObject()) {
+      QJsonObject configObj = configDoc.object();
+      if (configObj.contains("hotkey") && configObj["hotkey"].isDouble() &&
+          configObj["hotkey_text"].isString()) {
+        hotkey_linux_code = configObj["hotkey"].toInt();
+        hotkeyName = configObj["hotkey_text"].toString();
+      }
+      ui->hotkeyEdit->setText(hotkeyName);
+    } else {
+      qWarning() << "Failed to parse config file:" << parseError.errorString();
+    }
+  } else {
+    qWarning() << "Failed to open config file:" << configFile.errorString();
+  }
+}
+
+void MainWindow::saveConfig() {
   QString configDir =
       QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
   QDir().mkpath(configDir);
@@ -124,6 +128,10 @@ void MainWindow::closeEvent(QCloseEvent* event) {
   } else {
     qWarning() << "Failed to write config file:" << configFile.errorString();
   }
+}
+
+void MainWindow::closeEvent(QCloseEvent* event) {
+  saveConfig();
 
   event->accept();
 }

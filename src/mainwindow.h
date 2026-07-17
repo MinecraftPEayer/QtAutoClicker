@@ -47,6 +47,9 @@ class MainWindow : public QMainWindow {
 
   int retryCount;
 
+  void loadConfig();
+  void saveConfig();
+
   void tryConnectToSocket();
   void sendCommand(const QString& command);
   void setUiEnabled(bool enabled);
