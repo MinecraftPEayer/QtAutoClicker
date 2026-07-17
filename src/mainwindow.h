@@ -53,5 +53,7 @@ class MainWindow : public QMainWindow {
 
   int calculateIntervalMs();
   void updateConfig();
+
+  void toggleClickingState(bool clicking);
 };
 #endif  // MAINWINDOW_H

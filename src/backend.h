@@ -47,6 +47,8 @@ class Backend : public QObject {
   void handleNewConnection();
 
   void triggerUinputEvent();
+
+  void sendSocketCommand(const QString& command);
 };
 
 #endif  // BACKEND_H

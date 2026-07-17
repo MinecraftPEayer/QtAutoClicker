@@ -106,10 +106,12 @@ void Backend::initEvdevWorker() {
       [this]() {
         if (clicking) {
           QMetaObject::invokeMethod(clickTimer, "stop", Qt::QueuedConnection);
+          sendSocketCommand("CLICK_STOPPED");
           clicking = false;
         } else {
           QMetaObject::invokeMethod(clickTimer, "start", Qt::QueuedConnection,
                                     Q_ARG(int, interval_ms));
+          sendSocketCommand("CLICK_STARTED");
           clicking = true;
         }
       },
@@ -148,11 +150,11 @@ void Backend::setupSocketServer() {
 }
 
 void Backend::handleNewConnection() {
-  QLocalSocket* clientSocket = server->nextPendingConnection();
+  clientSocket = server->nextPendingConnection();
 
   std::cout << "[Backend Info] New client connected.\n";
 
-  connect(clientSocket, &QLocalSocket::readyRead, this, [this, clientSocket]() {
+  connect(clientSocket, &QLocalSocket::readyRead, this, [this]() {
     while (clientSocket->canReadLine()) {
       QByteArray line = clientSocket->readLine().trimmed();
       if (line.isEmpty()) continue;
@@ -302,15 +304,14 @@ void Backend::handleNewConnection() {
     }
   });
 
-  connect(clientSocket, &QLocalSocket::disconnected, this,
-          [this, clientSocket]() {
-            std::cout << "[Backend Info] Frontend client disconnected. Exiting "
-                         "backend safely...\n";
+  connect(clientSocket, &QLocalSocket::disconnected, this, [this]() {
+    std::cout << "[Backend Info] Frontend client disconnected. Exiting "
+                 "backend safely...\n";
 
-            clientSocket->deleteLater();
+    clientSocket->deleteLater();
 
-            app.quit();
-          });
+    app.quit();
+  });
 
   connect(clientSocket, &QLocalSocket::disconnected, clientSocket,
           &QLocalSocket::deleteLater);
@@ -364,6 +365,21 @@ void Backend::triggerUinputEvent() {
     std::cerr << "[Backend Error] Failed to write sync event after release.\n";
     return;
   }
+}
+
+void Backend::sendSocketCommand(const QString& command) {
+  if (!clientSocket || clientSocket->state() != QLocalSocket::ConnectedState)
+    return;
+
+  QJsonObject json;
+  json["command"] = command;
+
+  QJsonDocument doc(json);
+  QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
+  jsonData.append('\n');
+
+  clientSocket->write(jsonData);
+  clientSocket->flush();
 }
 
 Backend::~Backend() {

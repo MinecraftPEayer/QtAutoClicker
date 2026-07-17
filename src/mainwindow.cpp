@@ -59,6 +59,23 @@ MainWindow::MainWindow(QWidget* parent)
     qWarning() << "Failed to open config file:" << configFile.errorString();
   }
 
+  connect(ipcSocket, &QLocalSocket::readyRead, this, [this]() {
+    QByteArray data = ipcSocket->readAll();
+    QJsonParseError parseError;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &parseError);
+    if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
+      QJsonObject obj = doc.object();
+      if (obj.contains("command") && obj["command"].isString()) {
+        QString command = obj["command"].toString();
+        if (command == "CLICK_STARTED") {
+          toggleClickingState(true);
+        } else if (command == "CLICK_STOPPED") {
+          toggleClickingState(false);
+        }
+      }
+    }
+  });
+
   connect(reconnectTimer, &QTimer::timeout, this,
           &MainWindow::tryConnectToSocket);
 
@@ -123,6 +140,9 @@ void MainWindow::tryConnectToSocket() {
 
   if (ipcSocket->waitForConnected(1000)) {
     setUiEnabled(true);
+
+    toggleClickingState(false);
+
     QJsonObject dataObj;
     dataObj["command"] = "SET_HOTKEY";
 
@@ -156,8 +176,7 @@ void MainWindow::sendCommand(const QString& command) {
   json["command"] = command;
 
   if (command == "START") {
-    ui->StartButton->setEnabled(false);
-    ui->StopButton->setEnabled(true);
+    toggleClickingState(true);
 
     QJsonObject data;
     int interval = ui->input_ms->text().toInt() +
@@ -187,8 +206,7 @@ void MainWindow::sendCommand(const QString& command) {
     ipcSocket->write(jsonData);
     ipcSocket->flush();
   } else if (command == "STOP") {
-    ui->StartButton->setEnabled(true);
-    ui->StopButton->setEnabled(false);
+    toggleClickingState(false);
 
     QJsonDocument doc(json);
     QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
@@ -246,4 +264,16 @@ void MainWindow::on_input_ms_textEdited(const QString& arg1) { updateConfig(); }
 
 void MainWindow::on_ButtonComboBox_currentIndexChanged(int index) {
   updateConfig();
+}
+
+void MainWindow::toggleClickingState(bool clicking) {
+  if (clicking) {
+    ui->StartButton->setEnabled(false);
+    ui->StopButton->setEnabled(true);
+    MainWindow::setWindowTitle("Auto Clicker - Clicking");
+  } else {
+    ui->StartButton->setEnabled(true);
+    ui->StopButton->setEnabled(false);
+    MainWindow::setWindowTitle("Auto Clicker - Stopped");
+  }
 }
