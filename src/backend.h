@@ -39,6 +39,10 @@ class Backend : public QObject {
   QTimer* clickTimer;
 
   void init();
+  void initUinputDevice();
+  void initTimer();
+  void initEvdevWorker();
+
   void setupSocketServer();
   void handleNewConnection();
 

@@ -22,6 +22,16 @@ Backend::Backend(QCoreApplication& application)
       active_btn_linux_code(BTN_LEFT) {}
 
 void Backend::init() {
+  initUinputDevice();
+
+  initTimer();
+
+  initEvdevWorker();
+
+  setupSocketServer();
+}
+
+void Backend::initUinputDevice() {
   uinput_fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
 
   if (uinput_fd < 0) {
@@ -72,11 +82,15 @@ void Backend::init() {
   }
 
   std::cout << "[Backend Info] Successfully initialized uinput device\n";
+}
 
+void Backend::initTimer() {
   clickTimer = new QTimer(this);
   clickTimer->setTimerType(Qt::PreciseTimer);
   connect(clickTimer, &QTimer::timeout, this, &Backend::triggerUinputEvent);
+}
 
+void Backend::initEvdevWorker() {
   evdevThread = new QThread(this);
   evdevWorker = new EvdevWorker();
 
@@ -106,7 +120,6 @@ void Backend::init() {
 
 int Backend::exec() {
   init();
-  setupSocketServer();
   return app.exec();
 }
 
