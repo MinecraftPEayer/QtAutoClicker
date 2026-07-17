@@ -5,6 +5,7 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QProcess>
+#include <QSharedMemory>
 #include <QString>
 #include <iostream>
 
@@ -50,6 +51,14 @@ int main(int argc, char* argv[]) {
     return runBackend(argc, argv);
   } else {
     QApplication a(argc, argv);
+
+    QSharedMemory sharedMemory("QtAutoClicker");
+    if (!sharedMemory.create(1)) {
+      QMessageBox::critical(
+          nullptr, "Error",
+          "Another instance of the application is already running.");
+      return 1;
+    }
 
     QString progPath = QCoreApplication::applicationFilePath();
     QStringList arguments;
