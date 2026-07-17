@@ -23,6 +23,8 @@ MainWindow::MainWindow(QWidget* parent)
       retryCount(0) {
   ui->setupUi(this);
 
+  this->setFixedSize(this->width(), this->height());
+
   setWindowIcon(QIcon(":/QtAutoClicker.png"));
 
   setUiEnabled(false);
