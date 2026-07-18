@@ -135,21 +135,21 @@ void MainWindow::loadConfig() {
         } else
           active_button = "Left";
       }
-
-      ui->input_hours->setText(QString::number(interval_hours));
-      ui->input_mins->setText(QString::number(interval_mins));
-      ui->input_secs->setText(QString::number(interval_secs));
-      ui->input_ms->setText(QString::number(interval_ms));
-
-      ui->ButtonComboBox->setCurrentText(active_button);
-
-      ui->hotkeyEdit->setText(hotkeyName);
     } else {
       qWarning() << "Failed to parse config file:" << parseError.errorString();
     }
   } else {
     qWarning() << "Failed to open config file:" << configFile.errorString();
   }
+
+  ui->input_hours->setText(QString::number(interval_hours));
+  ui->input_mins->setText(QString::number(interval_mins));
+  ui->input_secs->setText(QString::number(interval_secs));
+  ui->input_ms->setText(QString::number(interval_ms));
+
+  ui->ButtonComboBox->setCurrentText(active_button);
+
+  ui->hotkeyEdit->setText(hotkeyName);
 }
 
 void MainWindow::saveConfig() {
