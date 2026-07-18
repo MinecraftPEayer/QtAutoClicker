@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QStandardPaths>
+#include <QString>
 #include <QTimer>
 #include <iostream>
 
@@ -91,6 +92,11 @@ void MainWindow::loadConfig() {
   hotkey_linux_code = 68;
   hotkeyName = "F10";
 
+  int interval_hours = 0, interval_mins = 0, interval_secs = 0,
+      interval_ms = 100;
+
+  QString active_button = "Left";
+
   if (configFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QByteArray configData = configFile.readAll();
     configFile.close();
@@ -103,6 +109,40 @@ void MainWindow::loadConfig() {
         hotkey_linux_code = configObj["hotkey"].toInt();
         hotkeyName = configObj["hotkey_text"].toString();
       }
+
+      if (configObj.contains("interval") && configObj["interval"].isObject()) {
+        QJsonObject intervalObj = configObj["interval"].toObject();
+        if (intervalObj.contains("hours") && intervalObj["hours"].isDouble()) {
+          interval_hours = intervalObj["hours"].toInt();
+        }
+        if (intervalObj.contains("mins") && intervalObj["mins"].isDouble()) {
+          interval_mins = intervalObj["mins"].toInt();
+        }
+        if (intervalObj.contains("secs") && intervalObj["secs"].isDouble()) {
+          interval_secs = intervalObj["secs"].toInt();
+        }
+        if (intervalObj.contains("ms") && intervalObj["ms"].isDouble()) {
+          interval_ms = intervalObj["ms"].toInt();
+        }
+      }
+
+      if (configObj.contains("button") && configObj["button"].isString()) {
+        QString button = configObj["button"].toString();
+
+        QStringList validButtons = {"Left", "Right", "Middle"};
+        if (validButtons.contains(button)) {
+          active_button = button;
+        } else
+          active_button = "Left";
+      }
+
+      ui->input_hours->setText(QString::number(interval_hours));
+      ui->input_mins->setText(QString::number(interval_mins));
+      ui->input_secs->setText(QString::number(interval_secs));
+      ui->input_ms->setText(QString::number(interval_ms));
+
+      ui->ButtonComboBox->setCurrentText(active_button);
+
       ui->hotkeyEdit->setText(hotkeyName);
     } else {
       qWarning() << "Failed to parse config file:" << parseError.errorString();
@@ -121,6 +161,15 @@ void MainWindow::saveConfig() {
   QJsonObject json;
   json["hotkey"] = hotkey_linux_code;
   json["hotkey_text"] = hotkeyName;
+
+  QJsonObject intervalObj;
+  intervalObj["hours"] = ui->input_hours->text().toInt();
+  intervalObj["mins"] = ui->input_mins->text().toInt();
+  intervalObj["secs"] = ui->input_secs->text().toInt();
+  intervalObj["ms"] = ui->input_ms->text().toInt();
+  json["interval"] = intervalObj;
+
+  json["button"] = ui->ButtonComboBox->currentText();
 
   QJsonDocument doc(json);
   QFile configFile(configFilePath);
