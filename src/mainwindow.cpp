@@ -203,20 +203,35 @@ void MainWindow::tryConnectToSocket() {
     toggleClickingState(false);
 
     QJsonObject dataObj;
+    QJsonObject preConfigObj;
     dataObj["command"] = "SET_HOTKEY";
+    preConfigObj["command"] = "UPDATE_CONFIG";
 
     QJsonObject configObj;
     configObj["hotkey"] = hotkey_linux_code;
     configObj["hotkey_text"] = hotkeyName;
 
+    QJsonObject preConfigDataObj;
+    preConfigDataObj["interval"] = calculateIntervalMs();
+    preConfigDataObj["button"] = ui->ButtonComboBox->currentText().toUpper();
+
     dataObj["data"] = configObj;
     QJsonDocument doc(dataObj);
     QByteArray jsonData = doc.toJson(QJsonDocument::Compact);
     jsonData.append('\n');
+
+    preConfigObj["data"] = preConfigDataObj;
+    QJsonDocument preConfigDoc(preConfigObj);
+    QByteArray preConfigJsonData = preConfigDoc.toJson(QJsonDocument::Compact);
+    preConfigJsonData.append('\n');
+
     if (ipcSocket && ipcSocket->state() == QLocalSocket::ConnectedState) {
       ipcSocket->write(jsonData);
       ipcSocket->flush();
+      ipcSocket->write(preConfigJsonData);
+      ipcSocket->flush();
     }
+
     reconnectTimer->stop();
   } else {
     if (retryCount >= 30) {
